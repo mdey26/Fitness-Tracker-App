@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitTracker - Your Personal Fitness Companion</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar hidden" id="navbar">
+        <div class="navbar-brand">
+            <h2>FitTracker</h2>
+        </div>
+        <div class="navbar-menu">
+            <a href="#" onclick="showPage('dashboard')" class="nav-link active">Dashboard</a>
+            <a href="#" onclick="showPage('food')" class="nav-link">Food</a>
+            <a href="#" onclick="showPage('exercise')" class="nav-link">Exercise</a>
+            <a href="#" onclick="showPage('progress')" class="nav-link">Progress</a>
+            <a href="#" onclick="showPage('community')" class="nav-link">Community</a>
+            <a href="#" onclick="showPage('profile')" class="nav-link">Profile</a>
+        </div>
+        <div class="navbar-actions">
+            <button class="btn btn--outline btn--sm" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <!-- Welcome/Login Page -->
+    <div class="page active" id="welcome-page">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h1>Welcome to FitTracker</h1>
+                    <p>Your personal fitness companion for a healthier lifestyle</p>
+                </div>
+                
+                <div class="auth-tabs">
+                    <button class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+                    <button class="auth-tab" onclick="switchAuthTab('signup')">Sign Up</button>
+                </div>
+
+                <!-- Login Form -->
+                <form class="auth-form active" id="login-form" onsubmit="login(event)">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="login-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" id="login-password" required>
+                    </div>
+                    <button type="submit" class="btn btn--primary btn--full-width">Login</button>
+                </form>
+
+                <!-- Signup Form -->
+                <form class="auth-form" id="signup-form" onsubmit="signup(event)">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="signup-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="signup-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" id="signup-password" required>
+                        <div class="password-strength" id="password-strength"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Daily Calorie Goal</label>
+                        <input type="number" class="form-control" id="signup-goal" value="2860" required>
+                    </div>
+                    <button type="submit" class="btn btn--primary btn--full-width">Sign Up</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Page -->
+    <div class="page" id="dashboard-page">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>Today's Summary</h1>
+                <div class="date-display" id="current-date"></div>
+            </div>
+
+            <!-- Calorie Summary -->
+            <div class="calorie-summary">
+                <div class="calorie-card">
+                    <h3>Calories</h3>
+                    <div class="calorie-progress">
+                        <div class="calorie-ring">
+                            <canvas id="calorie-chart" width="120" height="120"></canvas>
+                            <div class="calorie-text">
+                                <span class="consumed" id="calories-consumed">0</span>
+                                <span class="goal">/ <span id="calorie-goal">2860</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="calorie-breakdown">
+                        <div class="breakdown-item">
+                            <span>Goal</span>
+                            <span id="goal-display">2860</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Food</span>
+                            <span id="food-calories">0</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Exercise</span>
+                            <span id="exercise-calories">0</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Remaining</span>
+                            <span id="remaining-calories">2860</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Macronutrients -->
+            <div class="macros-section">
+                <h3>Macronutrients</h3>
+                <div class="macros-grid">
+                    <div class="macro-item">
+                        <div class="macro-header">
+                            <span>Carbs</span>
+                            <span id="carbs-value">0g</span>
+                        </div>
+                        <div class="macro-bar">
+                            <div class="macro-progress" id="carbs-progress"></div>
+                        </div>
+                    </div>
+                    <div class="macro-item">
+                        <div class="macro-header">
+                            <span>Protein</span>
+                            <span id="protein-value">0g</span>
+                        </div>
+                        <div class="macro-bar">
+                            <div class="macro-progress" id="protein-progress"></div>
+                        </div>
+                    </div>
+                    <div class="macro-item">
+                        <div class="macro-header">
+                            <span>Fat</span>
+                            <span id="fat-value">0g</span>
+                        </div>
+                        <div class="macro-bar">
+                            <div class="macro-progress" id="fat-progress"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Meals -->
+            <div class="meals-section">
+                <div class="meal-card" data-meal="breakfast">
+                    <div class="meal-header">
+                        <h3>Breakfast</h3>
+                        <button class="btn btn--primary btn--sm" onclick="showFoodSearch('breakfast')">Add Food</button>
+                    </div>
+                    <div class="meal-calories">
+                        <span id="breakfast-calories">0</span> calories
+                    </div>
+                    <div class="meal-foods" id="breakfast-foods"></div>
+                </div>
+
+                <div class="meal-card" data-meal="lunch">
+                    <div class="meal-header">
+                        <h3>Lunch</h3>
+                        <button class="btn btn--primary btn--sm" onclick="showFoodSearch('lunch')">Add Food</button>
+                    </div>
+                    <div class="meal-calories">
+                        <span id="lunch-calories">0</span> calories
+                    </div>
+                    <div class="meal-foods" id="lunch-foods"></div>
+                </div>
+
+                <div class="meal-card" data-meal="dinner">
+                    <div class="meal-header">
+                        <h3>Dinner</h3>
+                        <button class="btn btn--primary btn--sm" onclick="showFoodSearch('dinner')">Add Food</button>
+                    </div>
+                    <div class="meal-calories">
+                        <span id="dinner-calories">0</span> calories
+                    </div>
+                    <div class="meal-foods" id="dinner-foods"></div>
+                </div>
+
+                <div class="meal-card" data-meal="snacks">
+                    <div class="meal-header">
+                        <h3>Snacks</h3>
+                        <button class="btn btn--primary btn--sm" onclick="showFoodSearch('snacks')">Add Food</button>
+                    </div>
+                    <div class="meal-calories">
+                        <span id="snacks-calories">0</span> calories
+                    </div>
+                    <div class="meal-foods" id="snacks-foods"></div>
+                </div>
+            </div>
+
+            <!-- Water Tracker -->
+            <div class="water-section">
+                <h3>Water Intake</h3>
+                <div class="water-tracker">
+                    <div class="water-glasses" id="water-glasses">
+                        <!-- 8 glass icons will be generated here -->
+                    </div>
+                    <button class="btn btn--secondary btn--sm" onclick="addWater()">Add Glass</button>
+                    <button class="btn btn--outline btn--sm" onclick="resetWater()">Reset</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Food Search Page -->
+    <div class="page" id="food-page">
+        <div class="container">
+            <div class="page-header">
+                <h1>Add Food</h1>
+                <button class="btn btn--outline" onclick="showPage('dashboard')">Back to Dashboard</button>
+            </div>
+
+            <div class="search-section">
+                <input type="text" class="form-control search-input" id="food-search" placeholder="Search for foods..." oninput="searchFoods()">
+            </div>
+
+            <div class="food-results" id="food-results">
+                <!-- Food search results will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Exercise Page -->
+    <div class="page" id="exercise-page">
+        <div class="container">
+            <div class="page-header">
+                <h1>Exercise</h1>
+            </div>
+
+            <div class="exercise-tabs">
+                <button class="exercise-tab active" onclick="switchExerciseTab('cardio')">Cardio</button>
+                <button class="exercise-tab" onclick="switchExerciseTab('strength')">Strength</button>
+            </div>
+
+            <div class="exercise-content">
+                <!-- Cardio Tab -->
+                <div class="exercise-tab-content active" id="cardio-tab">
+                    <div class="search-section">
+                        <input type="text" class="form-control search-input" id="cardio-search" placeholder="Search cardio exercises..." oninput="searchExercises('cardio')">
+                    </div>
+                    <div class="exercise-results" id="cardio-results"></div>
+                </div>
+
+                <!-- Strength Tab -->
+                <div class="exercise-tab-content" id="strength-tab">
+                    <div class="search-section">
+                        <input type="text" class="form-control search-input" id="strength-search" placeholder="Search strength exercises..." oninput="searchExercises('strength')">
+                    </div>
+                    <div class="exercise-results" id="strength-results"></div>
+                </div>
+            </div>
+
+            <div class="todays-exercises">
+                <h3>Today's Exercises</h3>
+                <div id="exercise-log"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Page -->
+    <div class="page" id="progress-page">
+        <div class="container">
+            <div class="page-header">
+                <h1>Progress & Reports</h1>
+            </div>
+
+            <div class="progress-tabs">
+                <button class="progress-tab active" onclick="switchProgressTab('weight')">Weight</button>
+                <button class="progress-tab" onclick="switchProgressTab('nutrition')">Nutrition</button>
+                <button class="progress-tab" onclick="switchProgressTab('exercise')">Exercise</button>
+            </div>
+
+            <!-- Weight Tab -->
+            <div class="progress-tab-content active" id="weight-tab">
+                <div class="weight-tracker">
+                    <div class="weight-input">
+                        <input type="number" class="form-control" id="weight-input" placeholder="Enter weight (lbs)" step="0.1">
+                        <button class="btn btn--primary" onclick="addWeightEntry()">Add Weight</button>
+                    </div>
+                    <div class="chart-container" style="position: relative; height: 400px;">
+                        <canvas id="weight-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nutrition Tab -->
+            <div class="progress-tab-content" id="nutrition-tab">
+                <div class="nutrition-summary">
+                    <h3>This Week's Nutrition</h3>
+                    <div class="chart-container" style="position: relative; height: 400px;">
+                        <canvas id="nutrition-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exercise Tab -->
+            <div class="progress-tab-content" id="exercise-tab">
+                <div class="exercise-summary">
+                    <h3>Exercise Performance</h3>
+                    <div class="chart-container" style="position: relative; height: 400px;">
+                        <canvas id="exercise-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Community Page -->
+    <div class="page" id="community-page">
+        <div class="container">
+            <div class="page-header">
+                <h1>Community</h1>
+            </div>
+
+            <div class="community-tabs">
+                <button class="community-tab active" onclick="switchCommunityTab('feed')">Feed</button>
+                <button class="community-tab" onclick="switchCommunityTab('tips')">Health Tips</button>
+                <button class="community-tab" onclick="switchCommunityTab('articles')">Articles</button>
+            </div>
+
+            <!-- Feed Tab -->
+            <div class="community-tab-content active" id="feed-tab">
+                <div class="community-posts" id="community-posts"></div>
+            </div>
+
+            <!-- Tips Tab -->
+            <div class="community-tab-content" id="tips-tab">
+                <div class="health-tips" id="health-tips"></div>
+            </div>
+
+            <!-- Articles Tab -->
+            <div class="community-tab-content" id="articles-tab">
+                <div class="blog-articles" id="blog-articles"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Page -->
+    <div class="page" id="profile-page">
+        <div class="container">
+            <div class="page-header">
+                <h1>Profile</h1>
+            </div>
+
+            <div class="profile-card">
+                <div class="profile-info">
+                    <div class="profile-avatar">
+                        <div class="avatar-placeholder" id="user-avatar">👤</div>
+                    </div>
+                    <div class="profile-details">
+                        <h2 id="user-name">User Name</h2>
+                        <p id="user-email">user@example.com</p>
+                    </div>
+                </div>
+
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <span class="stat-value" id="streak-count">0</span>
+                        <span class="stat-label">Day Streak</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="total-logged">0</span>
+                        <span class="stat-label">Days Logged</span>
+                    </div>
+                </div>
+
+                <div class="profile-goals">
+                    <h3>Goals</h3>
+                    <div class="form-group">
+                        <label class="form-label">Daily Calorie Goal</label>
+                        <input type="number" class="form-control" id="calorie-goal-input" onchange="updateCalorieGoal()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Target Weight (lbs)</label>
+                        <input type="number" class="form-control" id="target-weight-input" step="0.1" onchange="updateTargetWeight()">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    
+    <!-- Add Food Modal -->
+    <div class="modal hidden" id="add-food-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Food</h3>
+                <button class="modal-close" onclick="closeModal('add-food-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="food-info" id="selected-food-info"></div>
+                <div class="form-group">
+                    <label class="form-label">Servings</label>
+                    <input type="number" class="form-control" id="food-servings" value="1" step="0.1" oninput="updateFoodNutrition()">
+                </div>
+                <div class="nutrition-preview" id="nutrition-preview"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn--outline" onclick="closeModal('add-food-modal')">Cancel</button>
+                <button class="btn btn--primary" onclick="addFoodToMeal()">Add Food</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Exercise Modal -->
+    <div class="modal hidden" id="add-exercise-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Exercise</h3>
+                <button class="modal-close" onclick="closeModal('add-exercise-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="exercise-info" id="selected-exercise-info"></div>
+                <div id="exercise-inputs"></div>
+                <div class="calories-preview" id="calories-preview"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn--outline" onclick="closeModal('add-exercise-modal')">Cancel</button>
+                <button class="btn btn--primary" onclick="addExerciseToLog()">Add Exercise</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Navigation -->
+    <div class="bottom-nav hidden" id="bottom-nav">
+        <a href="#" onclick="showPage('dashboard')" class="bottom-nav-item active">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-text">Home</span>
+        </a>
+        <a href="#" onclick="showPage('food')" class="bottom-nav-item">
+            <span class="nav-icon">🍽️</span>
+            <span class="nav-text">Food</span>
+        </a>
+        <a href="#" onclick="showPage('exercise')" class="bottom-nav-item">
+            <span class="nav-icon">💪</span>
+            <span class="nav-text">Exercise</span>
+        </a>
+        <a href="#" onclick="showPage('progress')" class="bottom-nav-item">
+            <span class="nav-icon">📊</span>
+            <span class="nav-text">Progress</span>
+        </a>
+        <a href="#" onclick="showPage('profile')" class="bottom-nav-item">
+            <span class="nav-icon">👤</span>
+            <span class="nav-text">Profile</span>
+        </a>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

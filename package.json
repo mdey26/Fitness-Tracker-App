@@ -1,0 +1,65 @@
+{
+  "name": "fittracker-pwa",
+  "version": "1.0.0",
+  "description": "Personal Fitness Tracking Progressive Web App",
+  "main": "index.html",
+  "scripts": {
+    "start": "http-server -p 8000 -c-1",
+    "dev": "http-server -p 3000 -c-1 -o",
+    "build": "npm run minify-css && npm run minify-js",
+    "minify-css": "cleancss -o dist/style.min.css style.css",
+    "minify-js": "uglifyjs app.js -o dist/app.min.js -c -m",
+    "serve": "python -m http.server 8000",
+    "pwa-build": "bubblewrap init --manifest http://localhost:8000/manifest.json && bubblewrap build",
+    "cordova-build": "./build-cordova.sh",
+    "capacitor-build": "./build-capacitor.sh",
+    "apk-build": "./build-apk.sh",
+    "test-pwa": "lighthouse http://localhost:8000 --view",
+    "icon-gen": "pwa-asset-generator logo.svg icons --index index.html --manifest manifest.json"
+  },
+  "keywords": [
+    "fitness",
+    "health",
+    "nutrition",
+    "exercise",
+    "calorie-tracking",
+    "pwa",
+    "mobile-app"
+  ],
+  "author": "Your Name <your@email.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@bubblewrap/cli": "^1.19.5",
+    "clean-css-cli": "^5.6.2",
+    "http-server": "^14.1.1",
+    "lighthouse": "^10.4.0",
+    "pwa-asset-generator": "^6.3.1",
+    "uglify-js": "^3.17.4"
+  },
+  "dependencies": {
+    "@capacitor/android": "^5.4.1",
+    "@capacitor/cli": "^5.4.1",
+    "@capacitor/core": "^5.4.1"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ],
+  "pwa": {
+    "name": "FitTracker",
+    "short_name": "FitTracker",
+    "theme_color": "#85c400",
+    "background_color": "#ffffff",
+    "start_url": "/",
+    "display": "standalone"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/fittracker-pwa.git"
+  },
+  "homepage": "https://yourwebsite.com/fittracker",
+  "bugs": {
+    "url": "https://github.com/yourusername/fittracker-pwa/issues"
+  }
+}
